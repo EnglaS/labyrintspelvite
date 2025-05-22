@@ -1,6 +1,6 @@
-import Phaser from 'phaser';
-import LabyrintScen from './Labyrintscen.js';
-import MenuScen from './MenuScen.js';
+import Phaser from 'phaser'
+import LabyrintScen from './Labyrintscen.js'
+import MenuScen from './MenuScen.js'
 
 const config = {
   type: Phaser.AUTO,
@@ -15,6 +15,6 @@ const config = {
     }
   },
   scene: [MenuScen, LabyrintScen]
-};
+}
 
 new Phaser.Game(config)

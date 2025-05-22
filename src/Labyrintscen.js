@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 import { buildLabyrint } from './labyrintBuilder'
-import { level1, level2 } from './levels'
+import { level1, level2, level3 } from './levels'
 import { createBackToMenuButton, createNextLevelButton } from './uiButtons'
 
 export default class LabyrintScen extends Phaser.Scene {
@@ -11,10 +11,20 @@ export default class LabyrintScen extends Phaser.Scene {
     preload() {
       this.load.image('bunny', 'bunny.png')
       this.load.image('wall', 'wall.png')
+      this.load.image('goal', 'goal.png')
+      this.load.image('key', 'key.png')
+      this.load.image('door', 'door.png')
+      // this.load.spritesheet('tiles', 'tilesheet.png', {
+      //   frameWidth: 16, // enligt Kenney-dokumentation
+      //   frameHeight: 16,
+      //   spacing: 1
+      // })
     }
   
     create() {
       this.currentLevel = 1;
+      this.isLoadingLevel = false;
+      this.hasKey = false;
     
       // Skapa spelaren först
       this.bunny = this.physics.add.image(100, 100, 'bunny').setScale(0.15);
@@ -29,37 +39,79 @@ export default class LabyrintScen extends Phaser.Scene {
         fill: '#ffffff'
       });
     
-      // Skapa knappen för att byta nivå
+      // Skapa knappar
       createNextLevelButton(this, () => {
-        this.currentLevel = this.currentLevel === 1 ? 2 : 1;
-        this.loadLevel();
+        this.currentLevel = (this.currentLevel % 3) + 1;
         this.bunny.setPosition(100, 100);
-      })
+        this.loadLevel();
+      });
     
-      // Ladda första nivån efter att bunny är skapad
-      this.loadLevel()
-
-      createBackToMenuButton(this)
+      createBackToMenuButton(this);
+    
+      // FLYTTAD HIT: Nu är bunny garanterat definierad
+      this.loadLevel();
     }
 
     loadLevel() {
-      if (this.walls?.clear) {
+      if (this.isLoadingLevel) {
+        console.warn('Avbryter: nivå laddas redan');
+        return;
+      }
+    
+      this.isLoadingLevel = true;
+    
+      if (this.walls && typeof this.walls.clear === 'function') {
         try {
           this.walls.clear(true, true);
         } catch (err) {
           console.warn('Kunde inte rensa väggar:', err);
         }
-      }
-    
-      const layout = this.currentLevel === 1 ? level1 : level2;
-      const newWalls = buildLabyrint(this, layout);
-    
-      if (newWalls?.clear) {
-        this.walls = newWalls;
       } else {
-        console.warn('Byggd labyrint returnerade ingen giltig vägggrupp:', newWalls);
-        this.walls = null;
+        console.warn('Varning: this.walls fanns inte eller saknade .clear:', this.walls);
       }
+    
+      if (this.goal) {
+        this.goal.destroy();
+        this.goal = null;
+      }
+    
+      const layout = this.currentLevel === 1 ? level1
+                   : this.currentLevel === 2 ? level2
+                   : level3;
+    
+      this.walls = buildLabyrint(this, layout);
+    
+      this.isLoadingLevel = false;
+    }
+
+    handleLevelComplete() {
+      // Stoppa spelaren och pausa fysik
+      this.bunny.setVelocity(0);
+      this.physics.pause();
+    
+      // Visa meddelande
+      this.add.text(300, 250, 'Mål uppnått!', {
+        fontSize: '24px',
+        fill: '#00ff00',
+        backgroundColor: '#000000',
+        padding: { x: 10, y: 5 }
+      });
+    
+      // Vänta 2 sekunder innan du byter nivå
+      this.time.delayedCall(2000, () => {
+        // Uppdatera till nästa nivå
+        this.currentLevel = (this.currentLevel % 3) + 1;
+    
+        // Flytta spelaren först
+        this.bunny.setVelocity(0); // för säkerhets skull
+        this.bunny.setPosition(100, 100);
+    
+        // 🟢 Starta fysiksystemet igen innan du bygger upp nya objekt
+        this.physics.resume();
+    
+        // Ladda nästa nivå
+        this.loadLevel();
+      });
     }
   
     update() {
