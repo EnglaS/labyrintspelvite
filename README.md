@@ -59,8 +59,8 @@ Ett 2D-labyrintspel byggt med **Phaser 3** där spelaren navigerar genom nivåer
 ## Kom igång lokalt
 
 ```bash
-git clone https://github.com/ditt-namn/labyrintspel.git
-cd labyrintspel
+git clone https://github.com/ditt-namn/labyrintspelvite.git
+cd labyrintspelvite
 npm install
 npm run dev
 ```
