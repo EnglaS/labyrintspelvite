@@ -25,5 +25,6 @@ jobs:
     - name: Bygg appen
       run: npm run build
 
+  test:
     - name: Testa med Vitest
       run: npm run test
