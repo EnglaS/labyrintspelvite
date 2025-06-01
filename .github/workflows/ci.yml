@@ -1,0 +1,32 @@
+name: Bygg och testa app
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Klona repo
+      uses: actions/checkout@v3
+
+    - name: Installera Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+
+    - name: Installera beroenden
+      run: npm ci
+
+    - name: Bygg appen
+      run: npm run build
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Testa med Vitest
+      run: npm run test
