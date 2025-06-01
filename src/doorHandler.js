@@ -2,6 +2,9 @@ export function placeDoor(scene, x, y) {
   const door = scene.physics.add.image(x, y, 'door').setScale(1)
   door.setSize(64, 64).setOffset(0, 0).refreshBody();
 
+  if (!scene.doors) scene.doors = [];
+  scene.doors.push(door);
+
   scene.physics.add.overlap(scene.bunny, door, () => {
     if (!scene.hasKey) {
       scene.bunny.setVelocity(0);

@@ -74,6 +74,14 @@ export default class LabyrintScen extends Phaser.Scene {
         this.goal.destroy();
         this.goal = null;
       }
+      if (this.doors) {
+        this.doors.forEach(d => d.destroy());
+        this.doors = [];
+      }
+      if (this.keys) {
+        this.keys.forEach(k => k.destroy());
+        this.keys = [];
+      }
     
       const layout = this.currentLevel === 1 ? level1
                    : this.currentLevel === 2 ? level2
