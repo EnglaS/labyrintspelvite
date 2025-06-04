@@ -42,3 +42,5 @@ jobs:
 
     - name: Testa med Vitest
       run: npm run test
+
+      
